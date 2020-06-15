@@ -10,8 +10,8 @@ namespace APDB_Project.Domain
         public int StreetNumber { get; set; }
         public string City { get; set; }
         public float Height { get; set; }
-        public virtual ICollection<Campaign> FromBuildings { get; set; }
-        public virtual ICollection<Campaign> ToBuildings { get; set; }
+        public virtual ICollection<Campaign> FromBuildingCampaigns { get; set; }
+        public virtual ICollection<Campaign> ToBuildingCampaigns { get; set; }
         
         
 
