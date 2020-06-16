@@ -1,9 +1,11 @@
-﻿using APDB_Project.Dtos;
+﻿using System.IdentityModel.Tokens.Jwt;
+using APDB_Project.Dtos;
 
 namespace APDB_Project.Services
 {
     public interface IUserService
     {
-        public void RegisterUser(UserRegistrationDto dto);
+        public JwtSecurityToken RegisterUser(UserRegistrationDto dto);
+        public JwtSecurityToken LoginUser(UserLoginDto dto);
     }
 }

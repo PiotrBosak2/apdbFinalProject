@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using APDB_Project.Domain;
+using APDB_Project.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -37,14 +38,15 @@ namespace APDB_Project
                     {
                         ValidateIssuer = true,
                         ValidateAudience = true,
-                        ValidIssuer = "MyIssuer",
-                        ValidAudience = "Students", //change those names
+                        ValidIssuer = "Gakko",
+                        ValidAudience = "Students",
                         ValidateLifetime = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["secretKey"]))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]))
                     };
 
                 });
-            
+
+            services.AddScoped<IUserService, UserServiceImpl>();
             services.AddDbContext<AdvertisementContext>(options =>
                 options.UseSqlServer(Configuration["connectionStrings:default"]));
             
@@ -63,6 +65,7 @@ namespace APDB_Project
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });

@@ -1,8 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Authentication;
+using System.Security.Claims;
+using System.Text;
 using System.Text.RegularExpressions;
 using APDB_Project.Domain;
 using APDB_Project.Dtos;
 using APDB_Project.Exceptions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using static APDB_Project.Services.Auxilary.SecurityUtility;
 
 namespace APDB_Project.Services
@@ -11,13 +20,17 @@ namespace APDB_Project.Services
 
     {
         private readonly AdvertisementContext _context;
+        private readonly IConfiguration _configuration;
+        private static readonly Regex Regex1 = new Regex("\\d{9}");
+        private static readonly Regex Regex2 = new Regex("\\d{3}-\\d{3}-\\d{3}");
 
-        public UserServiceImpl(AdvertisementContext context)
+        public UserServiceImpl(AdvertisementContext context,IConfiguration configuration)
         {
+            _configuration = configuration;
             _context = context;
         }
 
-        public void RegisterUser(UserRegistrationDto dto)
+        public JwtSecurityToken RegisterUser(UserRegistrationDto dto)
         {
             if (IsRegistrationDtoValid(dto))
             {
@@ -32,11 +45,53 @@ namespace APDB_Project.Services
                     PhoneNumber = dto.Phone,
                     Password = securePassword
                 });
+                _context.SaveChanges();
+                return CreateToken();
+
             }
 
-            else  throw new InvalidRegistrationDataException();
+            else throw new InvalidRegistrationDataException();
         }
 
+        public JwtSecurityToken LoginUser(UserLoginDto dto)
+        {
+            var securePassword = SecurePassword(dto.Password);
+             var client = _context.Clients.FirstOrDefault(c => c.Login == dto.Login);
+             if (client == null)
+             {
+                 throw new InvalidCredentialException();
+             }
+
+             return CreateToken();
+
+        }
+
+        private JwtSecurityToken CreateToken()
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Role, "client"),
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["SecretKey"]));
+            Console.WriteLine(_configuration["SecretKey"]);
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+           return  new JwtSecurityToken
+            (
+                issuer: "Gakko",
+                audience: "Students",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(10),
+                signingCredentials: credentials
+            );
+           
+        }
+        
+        
+        
+
+       
         private static bool IsRegistrationDtoValid(UserRegistrationDto dto)
         {
             return dto?.FirstName != null &&
@@ -45,23 +100,18 @@ namespace APDB_Project.Services
                    dto.Login != null &&
                    IsPhoneNumberValid(dto.Phone) &&
                    IsPasswordValid(dto.Password);
-
         }
 
         private static bool IsPhoneNumberValid(string phone)
         {
-            var regex = new Regex("\\d{9}");
-            return phone != null && regex.IsMatch(phone);
-
+            return phone != null && (
+                Regex1.IsMatch(phone) ||
+                Regex2.IsMatch(phone));
         }
 
         private static bool IsPasswordValid(string password)
         {
             return password != null && password.Length >= 8;
         }
-
-        
     }
-    
-    
 }
