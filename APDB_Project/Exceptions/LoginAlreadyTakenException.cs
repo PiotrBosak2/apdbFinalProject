@@ -2,7 +2,7 @@
 
 namespace APDB_Project.Exceptions
 {
-    public class InvalidCredentialsException : Exception
+    public class LoginAlreadyTakenException : Exception
     {
         
     }

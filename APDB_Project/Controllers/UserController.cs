@@ -4,6 +4,7 @@ using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
 using APDB_Project.Dtos;
+using APDB_Project.Exceptions;
 using APDB_Project.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,13 +37,17 @@ namespace APDB_Project.Controllers
             try
             {
                 var token = _service.RegisterUser(registrationDto);
-                return Ok(new 
+                return Ok(new
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     refreshToken = Guid.NewGuid()
                 });
             }
-            catch (Exception)
+            catch (LoginAlreadyTakenException)
+            {
+                return BadRequest("provided login is already used");
+            }
+            catch (InvalidRegistrationDataException)
             {
                 return BadRequest("provided data was incorrect");
             }
@@ -63,15 +68,19 @@ namespace APDB_Project.Controllers
             try
             {
                 var token = _service.LoginUser(dto);
-                return Ok(new 
+                return Ok(new
                 {
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     refreshToken = Guid.NewGuid()
                 });
             }
-            catch (InvalidCredentialException)
+            catch (InvalidLoginException)
             {
-                return BadRequest("you passed incorrect credentials");
+                return BadRequest("you passed incorrect login");
+            }
+            catch (InvalidPasswordException)
+            {
+                return BadRequest("you passed incorrect password");
             }
             
         }

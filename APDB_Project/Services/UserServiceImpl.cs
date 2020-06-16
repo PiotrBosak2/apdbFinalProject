@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 using APDB_Project.Domain;
 using APDB_Project.Dtos;
 using APDB_Project.Exceptions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using static APDB_Project.Services.Auxilary.SecurityUtility;
@@ -34,6 +32,9 @@ namespace APDB_Project.Services
         {
             if (IsRegistrationDtoValid(dto))
             {
+                if (IsLoginTaken(dto.Login))
+                    throw  new LoginAlreadyTakenException();
+                    
                 var securePassword = SecurePassword(dto.Password);
                 _context.Clients.Add(new Client
                 {
@@ -55,15 +56,16 @@ namespace APDB_Project.Services
 
         public JwtSecurityToken LoginUser(UserLoginDto dto)
         {
-            var securePassword = SecurePassword(dto.Password);
              var client = _context.Clients.FirstOrDefault(c => c.Login == dto.Login);
              if (client == null)
              {
-                 throw new InvalidCredentialException();
+                 throw new InvalidLoginException();
              }
 
-             return CreateToken();
+             if (IsPasswordCorrect(dto.Password, client.Password))
+                 return CreateToken();
 
+             else throw new InvalidPasswordException();
         }
 
         private JwtSecurityToken CreateToken()
@@ -100,6 +102,11 @@ namespace APDB_Project.Services
                    dto.Login != null &&
                    IsPhoneNumberValid(dto.Phone) &&
                    IsPasswordValid(dto.Password);
+        }
+
+        private  bool IsLoginTaken(string login)
+        {
+            return _context.Clients.Any(c => c.Login == login);
         }
 
         private static bool IsPhoneNumberValid(string phone)

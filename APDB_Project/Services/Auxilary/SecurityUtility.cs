@@ -21,7 +21,7 @@ namespace APDB_Project.Services.Auxilary
             return Convert.ToBase64String(hashBytes);
         }
 
-        public static void ValidatePassword(string enteredPassword,string passwordFromDb)
+        public static bool IsPasswordCorrect(string enteredPassword,string passwordFromDb)
         {
             var salt = new byte[16];
             var hashBytes = Convert.FromBase64String(passwordFromDb);
@@ -30,7 +30,8 @@ namespace APDB_Project.Services.Auxilary
             var hash = pbkdf2.GetBytes(20);
             for(var i = 0; i<20; ++i)
                 if (hashBytes[i + 16] != hash[i])
-                    throw new PasswordIsInvalidException();
+                    return false;
+            return true;
         }
     }
 }
