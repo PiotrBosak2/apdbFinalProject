@@ -25,12 +25,6 @@ namespace APDB_Project.Controllers
         {
             _service = service;
         }
-        // GET
-        
-        public IActionResult Index()
-        {
-            return Ok();
-        }
         [HttpPost("register")]
         public IActionResult RegisterUser(UserRegistrationDto registrationDto)
         {
@@ -55,7 +49,7 @@ namespace APDB_Project.Controllers
             
         }
 
-        [HttpGet]
+        [HttpGet("refresh")]
         public IActionResult RefreshToken()
         {
             return null;//need to implement it
@@ -91,6 +85,14 @@ namespace APDB_Project.Controllers
         public IActionResult someMethod()
         {
             return Ok("very good");
+        }
+
+        [HttpGet("list")]
+        [Authorize(Roles = "client")]
+        public IActionResult ListCampaigns()
+        {
+            var campaigns = _service.ListCampaigns();
+            return Ok(campaigns);
         }
 
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Text.RegularExpressions;
 using APDB_Project.Domain;
 using APDB_Project.Dtos;
 using APDB_Project.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using static APDB_Project.Services.Auxilary.SecurityUtility;
@@ -26,6 +28,61 @@ namespace APDB_Project.Services
         {
             _configuration = configuration;
             _context = context;
+        }
+
+
+        public ICollection<CampaignDto> ListCampaigns()
+        {
+            var list = new List<CampaignDto>();
+            var campaigns = _context.Campaigns.Include(c => c.Banners)
+                .Include(c => c.Client);
+
+            foreach (var campaign in campaigns)
+            {
+                list.Add(new CampaignDto
+                {
+                    Client = GetClientInformation(campaign.Client),
+                    Banners = GetBannersList(campaign.Banners),
+                    EndDate = campaign.EndDate,
+                    StartDate = campaign.StartDate,
+                    FromBuilding = campaign.FromBuilding,
+                    ToBuilding = campaign.ToBuilding,
+                    PricePerSquareMeter = campaign.PricePerSquareMeter
+                });
+            }
+
+            list.Sort((dto1, dto2) => (dto1.StartDate.CompareTo(dto2.StartDate)));
+            return list;
+
+        }
+
+
+        private static ClientDto GetClientInformation(Client client)
+        {
+            return new ClientDto
+            {
+                Email = client.Email,
+                Login = client.Login,
+                FirstName = client.FirstName,
+                LastName = client.LastName,
+                PhoneNumber = client.PhoneNumber
+            };
+        }
+
+        private static ICollection<BannerDto> GetBannersList(ICollection<Banner> banners)
+        {
+            var collection = new List<BannerDto>();
+            foreach (var banner in banners)
+            {
+                collection.Add(new BannerDto
+                {
+                    Area = banner.Area,
+                    Name =  banner.Name,
+                    Price = banner.Price
+                });
+            }
+
+            return collection;
         }
 
         public JwtSecurityToken RegisterUser(UserRegistrationDto dto)
