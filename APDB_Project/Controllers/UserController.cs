@@ -99,16 +99,14 @@ namespace APDB_Project.Controllers
                 return Created("",campaign);//maybe put something here
             }
             
-            catch (NoSuchBuildingException be)
+            catch (NoSuchBuildingException)
             {
                 return BadRequest("building with given id doesn't exist");
             }
-            catch (BuildingsOnDifferentStreetsException e)
+            catch (BuildingsOnDifferentStreetsException)
             {
                 return BadRequest("provided buildings are on different streets");
             }
-
-            return Ok();
         }
 
 

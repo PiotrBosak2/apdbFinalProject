@@ -218,7 +218,6 @@ namespace APDB_Project.Services
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["SecretKey"]));
-            Console.WriteLine(_configuration["SecretKey"]);
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
            return  new JwtSecurityToken
