@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using static APDB_Project.Services.Auxilary.SecurityUtility;
+using static APDB_Project.Utilities.SecurityUtility;
 
 namespace APDB_Project.Services
 {
