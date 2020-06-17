@@ -89,16 +89,16 @@ namespace APDB_Project.Controllers
             return Ok(campaigns);
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         [Authorize(Roles = "client")]
         public IActionResult CreateCampaign(CampaignCreationDto dto)
         {
             try
             {
-                var campaign =  _service.CreateCampaign(dto);
-                return Created("",campaign);//maybe put something here
+                var campaign = _service.CreateCampaign(dto);
+                return Created("", campaign); //maybe put something here
             }
-            
+
             catch (NoSuchBuildingException)
             {
                 return BadRequest("building with given id doesn't exist");
@@ -106,6 +106,10 @@ namespace APDB_Project.Controllers
             catch (BuildingsOnDifferentStreetsException)
             {
                 return BadRequest("provided buildings are on different streets");
+            }
+            catch (NoSuchClientException)
+            {
+                return BadRequest("we don't have a client with provided id");
             }
         }
 

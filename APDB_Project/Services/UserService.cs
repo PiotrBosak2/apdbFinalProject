@@ -9,6 +9,7 @@ using APDB_Project.Domain;
 using APDB_Project.Dtos;
 using APDB_Project.Exceptions;
 using Castle.Core;
+using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
@@ -234,8 +235,22 @@ namespace APDB_Project.Services
         
         private Pair<Building, Building> GetTwoBuildings(int fromId,int toId)
         {
-            var first = _context.Buildings.First(b => b.IdBuilding == fromId);
-            var second = _context.Buildings.First(b => b.IdBuilding == toId);
+            // _context.Buildings.Add(new Building
+            // {
+            //     City = "mycity",
+            //     Street = "a"
+            // });
+            // _context.Buildings.Add(new Building
+            // {
+            //     City = "mycity",
+            //     Street = "b"
+            // });
+            
+            _context.SaveChanges();
+            if(_context.Buildings.Any(b => b.IdBuilding == toId))
+                Console.Write("whatevre");
+            var first = _context.Buildings.FirstOrDefault(b => b.IdBuilding == fromId);
+            var second = _context.Buildings.FirstOrDefault(b => b.IdBuilding == toId);
             if (first == null || second == null)
                 throw new NoSuchBuildingException();
             if (first.Street != second.Street)
