@@ -10,5 +10,7 @@ namespace APDB_Project.Services
         public JwtSecurityToken RegisterUser(UserRegistrationDto dto);
         public JwtSecurityToken LoginUser(UserLoginDto dto);
         public ICollection<CampaignDto> ListCampaigns();
+        public CampaignDto CreateCampaign(CampaignCreationDto dto);
+
     }
 }

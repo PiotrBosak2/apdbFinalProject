@@ -35,6 +35,7 @@ namespace APDB_Project.Domain
                 entity.Property(c => c.IdClient).ValueGeneratedOnAdd();
                 entity.ToTable("Client2");
                 entity.HasIndex(e => e.Login).IsUnique();
+                entity.Property(c => c.FirstName).HasMaxLength(100);
 
                 entity.HasMany(c => c.Campaigns)
                     .WithOne(c => c.Client)

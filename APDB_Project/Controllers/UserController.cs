@@ -80,12 +80,6 @@ namespace APDB_Project.Controllers
         }
             
 
-        [HttpGet("method")]
-        [Authorize(Roles = "client2")]
-        public IActionResult someMethod()
-        {
-            return Ok("very good");
-        }
 
         [HttpGet("list")]
         [Authorize(Roles = "client")]
@@ -93,6 +87,27 @@ namespace APDB_Project.Controllers
         {
             var campaigns = _service.ListCampaigns();
             return Ok(campaigns);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "client")]
+        public IActionResult CreateCampaign(CampaignCreationDto dto)
+        {
+            try
+            {
+                _service.CreateCampaign(dto);
+            }
+            
+            catch (NoSuchBuildingException be)
+            {
+                return BadRequest("building with given id doesn't exist");
+            }
+            catch (BuildingsOnDifferentStreetsException e)
+            {
+                return BadRequest("provided buildings are on different streets");
+            }
+
+            return Ok();
         }
 
 

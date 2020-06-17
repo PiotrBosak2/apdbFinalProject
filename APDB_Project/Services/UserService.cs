@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using APDB_Project.Domain;
 using APDB_Project.Dtos;
 using APDB_Project.Exceptions;
+using Castle.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -16,18 +17,20 @@ using static APDB_Project.Services.Auxilary.SecurityUtility;
 
 namespace APDB_Project.Services
 {
-    public class UserServiceImpl : IUserService
+    public class UserService : IUserService
 
     {
         private readonly AdvertisementContext _context;
         private readonly IConfiguration _configuration;
+        private readonly ICalculationService _calculationService;
         private static readonly Regex Regex1 = new Regex("\\d{9}");
         private static readonly Regex Regex2 = new Regex("\\d{3}-\\d{3}-\\d{3}");
 
-        public UserServiceImpl(AdvertisementContext context,IConfiguration configuration)
+        public UserService(AdvertisementContext context,IConfiguration configuration,ICalculationService service)
         {
             _configuration = configuration;
             _context = context;
+            _calculationService = service;
         }
 
 
@@ -124,6 +127,16 @@ namespace APDB_Project.Services
 
              else throw new InvalidPasswordException();
         }
+        public CampaignDto CreateCampaign(CampaignCreationDto dto)
+        {
+            var buildings = GetTwoBuildings(dto.FromIdBuilding, dto.ToIdBuilding);
+            var divideBuildings = _calculationService.DivideBuildings(buildings);
+            return null;
+
+        }
+
+       
+            
 
         private JwtSecurityToken CreateToken()
         {
@@ -146,11 +159,21 @@ namespace APDB_Project.Services
             );
            
         }
-        
-        
-        
 
-       
+        
+        private Pair<Building, Building> GetTwoBuildings(int fromId,int toId)
+        {
+            var first = _context.Buildings.First(b => b.IdBuilding == fromId);
+            var second = _context.Buildings.First(b => b.IdBuilding == toId);
+            if (first == null || second == null)
+                throw new NoSuchBuildingException();
+            if (first.Street != second.Street)
+                throw new BuildingsOnDifferentStreetsException();
+            return new Pair<Building, Building>(first,second);
+        }
+    
+
+
         private static bool IsRegistrationDtoValid(UserRegistrationDto dto)
         {
             return dto?.FirstName != null &&

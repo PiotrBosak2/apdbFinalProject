@@ -46,7 +46,7 @@ namespace APDB_Project
 
                 });
 
-            services.AddScoped<IUserService, UserServiceImpl>();
+            services.AddScoped<IUserService, UserService>();
             services.AddDbContext<AdvertisementContext>(options =>
                 options.UseSqlServer(Configuration["connectionStrings:default"]));
             
