@@ -12,7 +12,7 @@ namespace APDB_Project.Dtos
         public  Building FromBuilding { get; set; } 
         public  Building ToBuilding { get; set; } 
         public  ClientDto Client { get; set; }
-        public  ICollection<BannerDto> Banners { get; set; }
+        public  List<BannerDto> Banners { get; set; }
 
     }
 }

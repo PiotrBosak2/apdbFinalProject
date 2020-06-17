@@ -5,11 +5,11 @@ using Castle.Core;
 
 namespace APDB_Project.Services
 {
-    public class CalculationService : ICalculationService
+    public class DividingService : IDividingService
     {
         private readonly AdvertisementContext _context;
 
-        public CalculationService(AdvertisementContext context)
+        public DividingService(AdvertisementContext context)
         {
             _context = context;
         }

@@ -16,7 +16,7 @@ namespace APDB_Project.Domain
         public virtual Building FromBuilding { get; set; } 
         public virtual Building ToBuilding { get; set; } 
         public virtual Client Client { get; set; }
-        public virtual ICollection<Banner> Banners { get; set; }
+        public virtual List<Banner> Banners { get; set; }
         
     }
 }

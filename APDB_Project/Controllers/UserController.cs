@@ -95,7 +95,8 @@ namespace APDB_Project.Controllers
         {
             try
             {
-                _service.CreateCampaign(dto);
+                var campaign =  _service.CreateCampaign(dto);
+                return Created("",campaign);//maybe put something here
             }
             
             catch (NoSuchBuildingException be)

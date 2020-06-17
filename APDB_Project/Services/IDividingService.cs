@@ -5,7 +5,7 @@ using Castle.Core;
 
 namespace APDB_Project.Services
 {
-    public interface ICalculationService
+    public interface IDividingService
     {
 
         public Pair<List<Building>,List<Building>> DivideBuildings(Pair<Building,Building> twoBuildings);
