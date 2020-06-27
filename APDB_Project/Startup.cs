@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace APDB_Project
 {
@@ -31,6 +32,7 @@ namespace APDB_Project
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -38,21 +40,32 @@ namespace APDB_Project
                     {
                         ValidateIssuer = true,
                         ValidateAudience = true,
-                        ValidIssuer = "Gakko",
-                        ValidAudience = "Students",
+                        ValidIssuer = "Issuer",
+                        ValidAudience = "Clients",
                         ValidateLifetime = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]))
                     };
 
                 });
 
+            services.AddMvc();
+            services.AddLogging();
+            
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBannerService,BannerService >();
             services.AddScoped<IDividingService, DividingService>();
             
             services.AddDbContext<AdvertisementContext>(options =>
                 options.UseSqlServer(Configuration["connectionStrings:default"]));
-            
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1",new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "APDB project",
+                    Description = "simple project picking banners for commercials",
+                });
+            });
             services.AddControllers();
         }
 
@@ -67,7 +80,11 @@ namespace APDB_Project
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
             app.UseAuthentication();
             app.UseAuthorization();
 

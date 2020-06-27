@@ -223,8 +223,8 @@ namespace APDB_Project.Services
 
            return  new JwtSecurityToken
             (
-                issuer: "Gakko",
-                audience: "Students",
+                issuer: "Issuer",
+                audience: "Clients",
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(10),
                 signingCredentials: credentials
