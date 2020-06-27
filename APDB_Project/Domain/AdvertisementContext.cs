@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using APDB_Project.Utilities;
+using Microsoft.EntityFrameworkCore;
 
 namespace APDB_Project.Domain
 {
@@ -8,6 +9,7 @@ namespace APDB_Project.Domain
         public DbSet<Client> Clients { get; set; }
         public DbSet<Campaign> Campaigns { get; set; }
         public DbSet<Building> Buildings { get; set; }
+        public DbSet<Token> Tokens { get; set; }
 
         public AdvertisementContext()
         {
@@ -71,6 +73,11 @@ namespace APDB_Project.Domain
                 entity.HasKey(c => c.IdBanner);
                 entity.Property(c => c.IdBanner).ValueGeneratedOnAdd();
                 entity.ToTable("Banner2");
+            });
+
+            modelBuilder.Entity<Token>(entity =>
+            {
+                entity.HasKey(c => new {c.AccessToken, c.RefreshToken});
             });
         }
         

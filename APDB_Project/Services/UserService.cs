@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using APDB_Project.Domain;
 using APDB_Project.Dtos;
 using APDB_Project.Exceptions;
+using APDB_Project.Utilities;
 using Castle.Core;
 using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
@@ -118,6 +119,20 @@ namespace APDB_Project.Services
             else throw new InvalidRegistrationDataException();
         }
 
+        public JwtSecurityToken GetNewAccessToken(Token token)
+        {
+            if (IsTokenValid(token))
+                return CreateToken();
+            else throw new InvalidTokenException();
+        }
+
+        private bool IsTokenValid(Token token)
+        {
+            return _context
+                .Tokens
+                .Any(t => t.AccessToken == token.AccessToken && t.RefreshToken == token.RefreshToken);
+        }
+
         public JwtSecurityToken LoginUser(UserLoginDto dto)
         {
             var client = _context.Clients.FirstOrDefault(c => c.Login == dto.Login);
@@ -221,7 +236,7 @@ namespace APDB_Project.Services
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["SecretKey"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-           return  new JwtSecurityToken
+           return new JwtSecurityToken
             (
                 issuer: "Issuer",
                 audience: "Clients",
@@ -230,25 +245,14 @@ namespace APDB_Project.Services
                 signingCredentials: credentials
             );
            
+
         }
 
-        
         private Pair<Building, Building> GetTwoBuildings(int fromId,int toId)
         {
-            // _context.Buildings.Add(new Building
-            // {
-            //     City = "mycity",
-            //     Street = "a"
-            // });
-            // _context.Buildings.Add(new Building
-            // {
-            //     City = "mycity",
-            //     Street = "b"
-            // });
+       
             
             _context.SaveChanges();
-            if(_context.Buildings.Any(b => b.IdBuilding == toId))
-                Console.Write("whatevre");
             var first = _context.Buildings.FirstOrDefault(b => b.IdBuilding == fromId);
             var second = _context.Buildings.FirstOrDefault(b => b.IdBuilding == toId);
             if (first == null || second == null)

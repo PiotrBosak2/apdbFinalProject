@@ -6,6 +6,7 @@ using System.Text;
 using APDB_Project.Dtos;
 using APDB_Project.Exceptions;
 using APDB_Project.Services;
+using APDB_Project.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -14,7 +15,6 @@ namespace APDB_Project.Controllers
 {
     [ApiController]
     [Route("api/users/")]
-    
     public class UserController : ControllerBase
 
 
@@ -25,6 +25,7 @@ namespace APDB_Project.Controllers
         {
             _service = service;
         }
+
         [HttpPost("register")]
         public IActionResult RegisterUser(UserRegistrationDto registrationDto)
         {
@@ -45,14 +46,21 @@ namespace APDB_Project.Controllers
             {
                 return BadRequest("provided data was incorrect");
             }
-            
-            
         }
 
-        [HttpGet("refresh")]
-        public IActionResult RefreshToken()
+        [HttpPost("refresh")]
+        public IActionResult RefreshToken(Token token)
         {
-            return null;//need to implement it
+            try
+            {
+                var jwt = _service.GetNewAccessToken(token);
+                return Ok(jwt);
+            }
+            catch (InvalidTokenException)
+            {
+                return BadRequest("passed token is not correct");
+                
+            }
         }
 
 
@@ -76,9 +84,7 @@ namespace APDB_Project.Controllers
             {
                 return BadRequest("you passed incorrect password");
             }
-            
         }
-            
 
 
         [HttpGet("list")]
@@ -112,9 +118,5 @@ namespace APDB_Project.Controllers
                 return BadRequest("we don't have a client with provided id");
             }
         }
-
-
-      
-        
     }
 }
